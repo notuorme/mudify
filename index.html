@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Mudify.com</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/face-api.js"></script>
+
+    <style>
+        body {
+            background: #111;
+            color: white;
+            font-family: Arial;
+            text-align: center;
+        }
+
+        h1 {
+            margin-top: 20px;
+        }
+
+        canvas {
+            margin-top: 20px;
+            border: 2px solid white;
+            max-width: 90%;
+        }
+
+        input, button {
+            margin-top: 15px;
+            padding: 10px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+
+<body>
+
+<h1>🟤 Mudify Here</h1>
+<h2>Made By NotUOrMe</h2>
+<h3>Discord: .lecture</h3>
+<h4>Roblox: notuormeee</h4>
+
+<p>Upload an image and we will mudify every face :D</p>
+
+<input type="file" id="upload" accept="image/*">
+<br>
+
+<button onclick="mudify()">Mudify Image</button>
+
+<br>
+
+<canvas id="canvas"></canvas>
+
+<script>
+
+const mudFace = new Image();
+mudFace.src = "mudface.png";
+
+async function loadModels() {
+    await faceapi.nets.tinyFaceDetector.loadFromUri('./models');
+}
+
+loadModels();
+
+async function mudify() {
+
+    const file = document.getElementById("upload").files[0];
+
+    if (!file) {
+        alert("Please upload an image first!");
+        return;
+    }
+
+    const img = new Image();
+    img.src = URL.createObjectURL(file);
+
+    img.onload = async () => {
+
+        const canvas = document.getElementById("canvas");
+        const ctx = canvas.getContext("2d");
+
+        canvas.width = img.width;
+        canvas.height = img.height;
+
+        // draw original image
+        ctx.drawImage(img, 0, 0);
+
+        // detect faces
+        const detections = await faceapi.detectAllFaces(
+            img,
+            new faceapi.TinyFaceDetectorOptions()
+        );
+
+        // draw mud faces over detected faces
+        detections.forEach(face => {
+
+            const box = face.box;
+
+            ctx.drawImage(
+                mudFace,
+                box.x,
+                box.y,
+                box.width,
+                box.height
+            );
+
+        });
+
+    };
+
+}
+
+</script>
+
+</body>
+</html>
